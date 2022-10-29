@@ -1,11 +1,35 @@
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.7.10' apply false
 }
 
 allprojects {
     group 'com.kasukusakura'
+    version project.property('proj.projver')
 
     repositories {
         mavenCentral()
+    }
+}
+
+tasks.create('updateAndroidProperties') {
+    doLast {
+        def apropertieFile = rootProject.file('android/gradle.properties')
+        def props = new Properties()
+        try (def reader = Files.newBufferedReader(apropertieFile.toPath(), StandardCharsets.UTF_8)) {
+            props.load(reader)
+        }
+
+        rootProject.properties.entrySet().each { entry ->
+            if (entry.key.startsWith("proj.")) {
+                props.setProperty(entry.key, entry.value)
+            }
+        }
+
+        try (def writer = Files.newBufferedWriter(apropertieFile.toPath(), StandardCharsets.UTF_8)) {
+            props.store(writer, null)
+        }
     }
 }

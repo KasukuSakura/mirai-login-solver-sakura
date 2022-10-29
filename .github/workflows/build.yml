@@ -20,7 +20,7 @@ jobs:
           cache-disabled: true
 
       - name: Build toplevel project
-        run: gradle build buildPlugin --info
+        run: gradle build buildPlugin updateAndroidProperties --info
 
       - name: Build android project
         run: gradle build --info

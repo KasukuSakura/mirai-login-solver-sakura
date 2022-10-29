@@ -11,8 +11,8 @@ android {
         applicationId "com.kasukusakura.sakuraloginsolver"
         minSdk 27
         targetSdk 32
-        versionCode 1
-        versionName "1.0"
+        versionCode Integer.parseInt(property("proj.projvernum"))
+        versionName property("proj.projver")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
