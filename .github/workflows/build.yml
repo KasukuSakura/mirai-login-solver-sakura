@@ -26,7 +26,13 @@ jobs:
         run: gradle build --info
         working-directory: android
 
-      - name: Upload apk
-        run: |
-          find /usr/local/lib/android/sdk/
-          whereis apk-signer
+      - name: Android SDK path setup
+        run: bash .scripts/android-sdk.sh
+
+      - name: Resign apks
+        run: bash .scripts/ci-dummy-sign.sh
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts
+          path: build/output
