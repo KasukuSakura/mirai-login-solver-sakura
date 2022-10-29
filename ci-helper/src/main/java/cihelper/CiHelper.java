@@ -40,6 +40,7 @@ public class CiHelper {
                     var rspx = httpc.send(HttpRequest.newBuilder()
                                     .uri(URI.create(urlxc))
                                     .header("Accept", "application/vnd.github+json")
+                                    .header("Content-Type", "application/octet-stream")
                                     .header("Authorization", "Bearer " + token)
                                     .POST(HttpRequest.BodyPublishers.ofFile(att.toPath()))
                                     .build(),
