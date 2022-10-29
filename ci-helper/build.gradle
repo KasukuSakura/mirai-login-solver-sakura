@@ -1,0 +1,20 @@
+import java.util.stream.Collectors
+
+plugins {
+    id 'java'
+}
+
+
+tasks.create('dump-ci-helper-cli') { Task task ->
+    task.dependsOn(sourceSets.main.runtimeClasspath)
+    doLast {
+        try (def writer = rootProject.file('.scripts/ci-helper.sh').newWriter()) {
+            writer.write("java -cp '")
+            def cplist = sourceSets.main.runtimeClasspath.files.stream()
+                    .map { it.absolutePath.replace('\\', '/') }
+                    .collect(Collectors.toList())
+            writer.write(String.join(File.pathSeparator, cplist))
+            writer.write("' cihelper.CiHelper \$*")
+        }
+    }
+}

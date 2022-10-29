@@ -7,5 +7,6 @@ build/
 
 /android-legacy
 /keys
+/.scripts/ci-helper.sh
 
 gradle-wrapper.jar

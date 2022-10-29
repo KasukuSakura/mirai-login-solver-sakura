@@ -1,8 +1,7 @@
 on:
-  push: { }
-  pull_request: { }
+  release:
+    types: [ published ]
 
-name: Build CI
 
 jobs:
   build:
@@ -20,7 +19,7 @@ jobs:
           cache-disabled: true
 
       - name: Build toplevel project
-        run: gradle build buildPlugin updateAndroidProperties --info
+        run: gradle build buildPlugin updateAndroidProperties dump-ci-helper-cli --info
 
       - name: Build android project
         run: gradle build --info
@@ -38,7 +37,10 @@ jobs:
       - name: Resign apks
         run: bash .scripts/ci-dummy-sign.sh
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: artifacts
-          path: build/output
+      - name: Upload assetss up release
+        run: sh .scripts/ci-helper.sh uploadAssets
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPLOAD_URL: ${{ github.event.release.upload_url }}
+
+#          // /repos/{owner}/{repo}/releases/{release_id}/assets
