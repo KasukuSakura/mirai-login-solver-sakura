@@ -1,0 +1,10 @@
+.gradle
+.idea
+build/
+
+*.log
+*.class
+
+/android-legacy
+
+gradle-wrapper.jar

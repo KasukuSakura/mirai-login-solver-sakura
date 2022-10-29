@@ -1,0 +1,20 @@
+plugins {
+    id 'net.mamoe.mirai-console' version '2.13.0-RC'
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+dependencies {
+    implementation 'com.miglayout:miglayout-swing:11.0'
+    implementation 'com.google.zxing:javase:3.5.0'
+    implementation 'com.google.zxing:javase:3.5.0'
+    implementation 'com.google.code.gson:gson:2.9.0'
+
+
+    testImplementation 'com.formdev:flatlaf:2.5'
+    testImplementation 'com.formdev:flatlaf-intellij-themes:2.5'
+}
+
+mirai {
+    jvmTarget = JavaVersion.VERSION_11
+}
+

@@ -1,0 +1,11 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.7.10' apply false
+}
+
+allprojects {
+    group 'com.kasukusakura'
+
+    repositories {
+        mavenCentral()
+    }
+}

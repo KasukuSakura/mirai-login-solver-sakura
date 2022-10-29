@@ -1,0 +1,3 @@
+rootProject.name = 'mirai-login-solver-sakura'
+
+include ':mirai-login-solver-sakura'
