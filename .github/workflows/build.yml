@@ -25,3 +25,8 @@ jobs:
       - name: Build android project
         run: gradle build --info
         working-directory: android
+
+      - name: Upload apk
+        run: |
+          find /usr/local/lib/android/sdk/
+          whereis apk-signer
