@@ -1,6 +1,6 @@
 on:
-  push: {}
-  pull_request: {}
+  push: { }
+  pull_request: { }
 
 name: Build CI
 
@@ -28,6 +28,12 @@ jobs:
 
       - name: Android SDK path setup
         run: bash .scripts/android-sdk.sh
+
+      - name: Write Cert
+        run: bash .scripts/write-cert.sh
+        env:
+          CERT_CERTFILE: ${{ secrets.CERT_CERTFILE }}
+          CERT_KEYFILE: ${{  secrets.CERT_KEYFILE  }}
 
       - name: Resign apks
         run: bash .scripts/ci-dummy-sign.sh

@@ -6,5 +6,6 @@ build/
 *.class
 
 /android-legacy
+/keys
 
 gradle-wrapper.jar
