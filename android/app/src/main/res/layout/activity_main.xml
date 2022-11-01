@@ -7,19 +7,24 @@
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/Theme.SakuraLoginSolver.AppBarOverlay">
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:theme="@style/Theme.SakuraLoginSolver.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.SakuraLoginSolver.PopupOverlay" />
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/Theme.SakuraLoginSolver.PopupOverlay"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <include android:id="@+id/include" layout="@layout/content_main"/>
+    <TextView
+            android:id="@+id/right_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:alpha="0.5" android:text="TextView"
+            app:layout_anchor="@+id/include" app:layout_anchorGravity="end|bottom"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

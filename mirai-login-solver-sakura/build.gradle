@@ -18,3 +18,13 @@ mirai {
     jvmTarget = JavaVersion.VERSION_11
 }
 
+processResources {
+    from project.file('src/extres')
+
+    expand([
+            '===============': '',
+            projver          : rootProject.version,
+            commitid         : rootProject.property('proj.commitid'),
+    ])
+}
+

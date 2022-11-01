@@ -9,21 +9,26 @@
 
 package com.kasukusakura.mlss.console
 
+import com.kasukusakura.mlss.ProjMetadata
 import com.kasukusakura.mlss.resolver.SakuraLoginSolver
 import com.kasukusakura.mlss.slovbroadcast.ResolveBroadcastServer
 import kotlinx.coroutines.job
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
+import net.mamoe.mirai.utils.debug
 import java.util.concurrent.Executors
 
 object ConsolePluginMain : KotlinPlugin(
-    JvmPluginDescription(id = "com.kasukusakura.mlss", version = "0.0.1") {
+    JvmPluginDescription(id = "com.kasukusakura.mlss", version = ProjMetadata["proj.projver"]) {
         name("mirai-login-solver-sakura")
-        version("0.0.1")
+        version(ProjMetadata["proj.projver"])
     }
 ) {
     override fun PluginComponentStorage.onLoad() {
+        logger.debug { "Version : " + ProjMetadata["proj.projver"] }
+        logger.debug { "Commit  : " + ProjMetadata["proj.commitid"] }
+
         val executors = Executors.newScheduledThreadPool(5)
         val server = ResolveBroadcastServer(executors)
         server.start()
