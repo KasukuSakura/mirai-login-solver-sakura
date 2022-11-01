@@ -4,8 +4,20 @@
 
 这是另外的一整套验证处理工具，主要是为了优化和方便处理各种验证码
 
->
-本项目前身: [TxCaptchaHelper](https://github.com/mzdluo123/TxCaptchaHelper)
+> 本项目前身: [TxCaptchaHelper](https://github.com/mzdluo123/TxCaptchaHelper)
+
+### 已完成 / 计划
+
+- [X] GUI (Graphics User Interface)
+- [ ] CLI (Command  Line Interface)
+
+#### GUI
+
+- [X] SMS
+- [X] 设备锁验证
+- [X] 滑块验证
+- [X] Pic 4code 验证
+
 
 ### 预览
 
