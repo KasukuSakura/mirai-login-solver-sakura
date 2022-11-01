@@ -12,11 +12,13 @@ package com.kasukusakura.mlss.resolver
 import com.google.gson.JsonObject
 import com.google.zxing.client.j2se.MatrixToImageConfig
 import com.google.zxing.client.j2se.MatrixToImageWriter
+import com.kasukusakura.mlss.ProjMetadata
 import com.kasukusakura.mlss.slovbroadcast.ResolveBroadcastServer
 import kotlinx.coroutines.*
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.network.CustomLoginFailedException
 import net.mamoe.mirai.utils.*
+import java.awt.Color
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
@@ -119,7 +121,8 @@ class SakuraLoginSolver(
                         blockingDisplay = true,
                         title = "SliderCaptcha($botid) - SakuraCaptchaHelper"
                     ) {
-                        appendFillX(JLabel("Please scan this QRCode with Sakura Login Solver"))
+                        appendFillX(JLabel("请使用 Sakura Login Solver (配套app) 扫描此二维码"))
+                        appendFillX(JLabel("注: 手机与此设备应该在同一内网中 (即连接同一个网络)"))
                         val req24 = server.newRequest(JsonObject().also { jo ->
                             jo.addProperty("type", "slider")
                             jo.addProperty("url", captchaUrl)
@@ -136,6 +139,11 @@ class SakuraLoginSolver(
                             )
                         )
                         appendFillX(jl)
+                        appendFillX(
+                            JLabel("Version " + ProjMetadata["proj.projver"] + " " + ProjMetadata["proj.commitid"]).also { jl ->
+                                jl.foreground = Color.GRAY
+                            }
+                        )
                         optionPane.options = arrayOf(
                             BTN_CANCEL.withValue(WindowResult.Cancelled),
                         )
