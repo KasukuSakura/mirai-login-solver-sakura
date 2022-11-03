@@ -133,8 +133,8 @@ class SakuraLoginSolver(
                         jl.icon = ImageIcon(
                             MatrixToImageWriter.toBufferedImage(
                                 qrx, MatrixToImageConfig(
-                                    jl.background.rgb,
-                                    jl.foreground.rgb,
+                                    Color.black.rgb,
+                                    Color.white.rgb,
                                 )
                             )
                         )
