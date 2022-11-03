@@ -6,10 +6,20 @@
 
 > 本项目前身: [TxCaptchaHelper](https://github.com/mzdluo123/TxCaptchaHelper)
 
+
+
+版本支持:
+
+| mirai-login-solver-sakura | mirai-core |
+|:--------------------------|:-----------|
+| 0.0.1 - dev               | 2.13.0+    |
+
+--------------
+
 ### 已完成 / 计划
 
 - [X] GUI (Graphics User Interface)
-- [ ] CLI (Command  Line Interface)
+- [ ] CLI (Command Line Interface)
 
 #### GUI
 
@@ -18,8 +28,7 @@
 - [X] 滑块验证
 - [X] Pic 4code 验证
 
-
-### 预览
+###### 预览
 
 <details>
 <summary>点击展开</summary>

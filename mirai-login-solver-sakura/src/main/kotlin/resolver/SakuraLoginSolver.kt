@@ -60,7 +60,7 @@ class SakuraLoginSolver(
         level = DeprecationLevel.WARNING
     )
     override suspend fun onSolveUnsafeDeviceLoginVerify(bot: Bot, url: String): String? {
-        error("Deprecated.")
+        error("Sorry, but mirai-login-solver-sakura no longer support the legacy version of mirai-core; Please use 2.13.0 or above")
     }
 
     override suspend fun onSolveDeviceVerification(
@@ -140,8 +140,8 @@ class SakuraLoginSolver(
                         )
                         appendFillX(jl)
                         appendFillX(
-                            JLabel("Version " + ProjMetadata["proj.projver"] + " " + ProjMetadata["proj.commitid"]).also { jl ->
-                                jl.foreground = Color.GRAY
+                            JLabel("Version " + ProjMetadata["proj.projver"] + " " + ProjMetadata["proj.commitid"]).also { verinf ->
+                                verinf.foreground = Color.GRAY
                             }
                         )
                         optionPane.options = arrayOf(
