@@ -102,10 +102,16 @@ class ResolveBroadcastServer(
         val requestPt: String get() = "/request/request/$requestId"
     }
 
+    private fun genNewID() = buildString {
+        repeat(8) {
+            append(('0'..'9').random())
+        }
+    }
+
     fun newRequest(msg: JsonElement, initialReqId: String? = null): TMXRequest {
         val req = TMXRequest(msg)
 
-        var id: String = initialReqId ?: UUID.randomUUID().toString()
+        var id: String = initialReqId ?: genNewID()
         do {
             if (requests.putIfAbsent(id, req) == null) {
                 break
