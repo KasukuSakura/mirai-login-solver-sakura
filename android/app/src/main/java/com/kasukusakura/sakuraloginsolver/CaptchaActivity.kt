@@ -8,11 +8,17 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.webkit.ProxyConfig
+import androidx.webkit.ProxyController
 import com.google.gson.JsonParser
 import com.kasukusakura.sakuraloginsolver.databinding.ActivityCaptchaBinding
+import java.util.concurrent.Executor
 
 class CaptchaActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCaptchaBinding
+
+    private val dummyExecutor = Executor {}
+    private val dummyListener = Runnable {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,9 +30,9 @@ class CaptchaActivity : AppCompatActivity() {
         webview.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
-                request: WebResourceRequest?
+                request: WebResourceRequest
             ): Boolean {
-                return onJsBridgeInvoke(request!!.url)
+                return onJsBridgeInvoke(request.url)
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -60,6 +66,23 @@ class CaptchaActivity : AppCompatActivity() {
             domStorageEnabled = true
         }
 
+        val tunnel = intent.getStringExtra("tunnel").orEmpty()
+
+        if (tunnel.isNotBlank()) {
+            val conf = ProxyConfig.Builder()
+                .addProxyRule(tunnel)
+                .addDirect()
+                .build()
+
+            ProxyController.getInstance().setProxyOverride(conf, dummyExecutor, dummyListener)
+        } else {
+            val conf = ProxyConfig.Builder()
+                .addDirect()
+                .build()
+
+            ProxyController.getInstance().setProxyOverride(conf, dummyExecutor, dummyListener)
+        }
+
         intent.getStringExtra("url")?.let { webview.loadUrl(it) }
     }
 
@@ -78,8 +101,15 @@ class CaptchaActivity : AppCompatActivity() {
             .putExtras(this.intent)
             .putExtra("ticket", ticket)
 
+        ProxyController.getInstance().clearProxyOverride(dummyExecutor, dummyListener)
+        binding.webview.destroy()
 
         setResult(RESULT_OK, intent)
         finish()
+    }
+
+    override fun onDestroy() {
+        binding.webview.destroy()
+        super.onDestroy()
     }
 }

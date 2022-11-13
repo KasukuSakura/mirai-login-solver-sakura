@@ -11,13 +11,17 @@ package com.kasukusakura.mlss.console
 
 import com.kasukusakura.mlss.ProjMetadata
 import com.kasukusakura.mlss.resolver.SakuraLoginSolver
-import com.kasukusakura.mlss.slovbroadcast.ResolveBroadcastServer
+import com.kasukusakura.mlss.slovbroadcast.SakuraTransmitDaemon
+import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.nio.NioServerSocketChannel
+import io.netty.channel.socket.nio.NioSocketChannel
 import kotlinx.coroutines.job
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.utils.debug
-import java.util.concurrent.Executors
+import java.security.SecureRandom
+import kotlin.random.asKotlinRandom
 
 object ConsolePluginMain : KotlinPlugin(
     JvmPluginDescription(id = "com.kasukusakura.mlss", version = ProjMetadata["proj.projver"]) {
@@ -29,13 +33,18 @@ object ConsolePluginMain : KotlinPlugin(
         logger.debug { "Version : " + ProjMetadata["proj.projver"] }
         logger.debug { "Commit  : " + ProjMetadata["proj.commitid"] }
 
-        val executors = Executors.newScheduledThreadPool(5)
-        val server = ResolveBroadcastServer(executors)
-        server.start()
+        val server = SakuraTransmitDaemon(
+            NioEventLoopGroup(),
+            NioServerSocketChannel::class.java,
+            NioSocketChannel::class.java,
+            SecureRandom().asKotlinRandom(),
+            logger,
+        )
+        server.bootServer()
 
         ConsolePluginMain.coroutineContext.job.invokeOnCompletion {
-            server.stop()
-            executors.shutdown()
+            server.shutdown()
+            server.eventLoopGroup.shutdownGracefully()
         }
         val solver = SakuraLoginSolver(server)
 

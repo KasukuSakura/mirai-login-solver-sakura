@@ -6,8 +6,15 @@ plugins {
 dependencies {
     implementation 'com.miglayout:miglayout-swing:11.0'
     implementation 'com.google.zxing:javase:3.5.0'
-    implementation 'com.google.zxing:javase:3.5.0'
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10'
+
+    def netty = { module ->
+        "io.netty:netty-" + module + ":4.1.85.Final"
+    }
+
+    implementation netty('codec-http')
+    implementation netty('codec-socks')
+    implementation netty('transport')
 
 
     testImplementation 'com.formdev:flatlaf:2.5'

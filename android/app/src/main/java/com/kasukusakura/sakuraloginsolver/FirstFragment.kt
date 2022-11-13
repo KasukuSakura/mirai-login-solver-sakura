@@ -162,7 +162,8 @@ class FirstFragment : Fragment() {
                 return
             }
 
-            val serverBase = "http://" + iter.next().asString + ":" + sport
+            val serverIp = iter.next().asString
+            val serverBase = "http://$serverIp:$sport"
 
             val urlx = "$serverBase/request/request/$reqId"
             Log.i(LOG_NAME, "Trying $urlx")
@@ -187,7 +188,7 @@ class FirstFragment : Fragment() {
 
                     val strx = bdy.string()
                     Log.i(LOG_NAME, strx)
-                    processSakuraRequest2(context, serverBase, strx)
+                    processSakuraRequest2(context, serverIp, serverBase, strx)
                 }
             })
         }
@@ -196,12 +197,15 @@ class FirstFragment : Fragment() {
 
     }
 
-    private fun processSakuraRequest2(context: ReqContext, serverBase: String, rawdata: String) {
+    private fun processSakuraRequest2(context: ReqContext, serverIp: String, serverBase: String, rawdata: String) {
         val toplevel = JsonParser.parseString(rawdata).asJsonObject
 
         val msgdata = toplevel["data"].asJsonObject
         crtContext = context
         val rspUrl = URI.create(serverBase).resolve(toplevel["rspuri"].asString).toString()
+
+        val tunnel = toplevel["tunnel"]?.asString.orEmpty()
+            .replace("<serverip>", serverIp)
 
         context.complete = { rspx ->
             val ticket = rspx.getStringExtra("ticket")!!
@@ -214,6 +218,7 @@ class FirstFragment : Fragment() {
                 rawRequestLauncher.launch(
                     Intent(requireActivity(), CaptchaActivity::class.java)
                         .putExtra("url", msgdata["url"].asString)
+                        .putExtra("tunnel", tunnel)
                 )
             }
             else -> {
@@ -287,7 +292,7 @@ class FirstFragment : Fragment() {
                 val srsp = rsp.getStringExtra("srsp")!!
                 Log.i(LOG_NAME, srsp)
                 val urix = URI.create(url)
-                processSakuraRequest2(context, "${urix.scheme}://${urix.host}:${urix.port}", srsp)
+                processSakuraRequest2(context, urix.host, "${urix.scheme}://${urix.host}:${urix.port}", srsp)
                 return
             }
 

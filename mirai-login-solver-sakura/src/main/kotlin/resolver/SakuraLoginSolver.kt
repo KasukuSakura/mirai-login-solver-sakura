@@ -13,7 +13,8 @@ import com.google.gson.JsonObject
 import com.google.zxing.client.j2se.MatrixToImageConfig
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.kasukusakura.mlss.ProjMetadata
-import com.kasukusakura.mlss.slovbroadcast.ResolveBroadcastServer
+import com.kasukusakura.mlss.slovbroadcast.SakuraTransmitDaemon
+import com.kasukusakura.mlss.useByteBuf
 import kotlinx.coroutines.*
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.network.CustomLoginFailedException
@@ -33,7 +34,7 @@ import javax.swing.JLabel
 
 @Suppress("MemberVisibilityCanBePrivate")
 class SakuraLoginSolver(
-    private val server: ResolveBroadcastServer,
+    private val daemon: SakuraTransmitDaemon,
 ) : LoginSolver() {
     override val isSliderCaptchaSupported: Boolean get() = true
 
@@ -123,7 +124,7 @@ class SakuraLoginSolver(
                     ) {
                         appendFillX(JLabel("请使用 Sakura Login Solver (配套app) 扫描此二维码"))
                         appendFillX(JLabel("注: 手机与此设备应该在同一内网中 (即连接同一个网络)"))
-                        val req24 = server.newRequest(JsonObject().also { jo ->
+                        val req24 = daemon.newRequest(JsonObject().also { jo ->
                             jo.addProperty("type", "slider")
                             jo.addProperty("url", captchaUrl)
                         })
@@ -149,7 +150,7 @@ class SakuraLoginSolver(
                         )
 
                         subCoroutineScope.launch {
-                            val rspxwfx = req24.awaitResponse().toString(StandardCharsets.UTF_8)
+                            val rspxwfx = req24.awaitResponse().useByteBuf { it.toString(StandardCharsets.UTF_8) }
                             response.complete(WindowResult.Confirmed(rspxwfx))
                         }
                     }

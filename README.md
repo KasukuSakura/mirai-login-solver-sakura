@@ -99,6 +99,9 @@ Way 2: 从最新构建下载
         "type": "slider", // 这次请求的类型
         //..... 请求的其他数据
     },
+
+    // 代理地址, 可选 (可不提供), 占位符 <serverip> 会自动替换为合适的地址, 支持 socks5 和 http proxy
+    "tunnel": "socks://<serverip>:1234", // Optional
 }
 ```
 
