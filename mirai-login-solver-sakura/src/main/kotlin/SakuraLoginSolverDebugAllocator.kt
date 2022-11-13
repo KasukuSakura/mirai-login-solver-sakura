@@ -9,12 +9,12 @@
 
 package com.kasukusakura.mlss
 
-import com.kasukusakura.mlss.console.ConsolePluginMain
 import com.kasukusakura.mlss.resolver.SakuraLoginSolver
 import com.kasukusakura.mlss.slovbroadcast.SakuraTransmitDaemon
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import net.mamoe.mirai.utils.LoginSolver
+import net.mamoe.mirai.utils.MiraiLogger
 import java.security.SecureRandom
 import kotlin.random.asKotlinRandom
 
@@ -33,7 +33,7 @@ internal object SakuraLoginSolverDebugAllocator {
             NioServerSocketChannel::class.java,
             NioSocketChannel::class.java,
             SecureRandom().asKotlinRandom(),
-            ConsolePluginMain.logger,
+            MiraiLogger.Factory.create(SakuraLoginSolverDebugAllocator::class.java, "SakuraLoginSolver"),
         )
         server.bootServer()
 
