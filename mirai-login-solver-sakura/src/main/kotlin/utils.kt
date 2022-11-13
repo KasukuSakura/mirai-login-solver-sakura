@@ -10,6 +10,9 @@
 package com.kasukusakura.mlss
 
 import io.netty.buffer.ByteBuf
+import io.netty.channel.nio.NioEventLoopGroup
+import java.util.concurrent.ThreadFactory
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -23,4 +26,16 @@ internal inline fun <R> ByteBuf.useByteBuf(act: (ByteBuf) -> R): R {
     } finally {
         release(2)
     }
+}
+
+@Suppress("FunctionName")
+internal fun DaemonNettyNioEventLoopGroup(): NioEventLoopGroup {
+    val threadGroup = ThreadGroup("SakuraLoginSolverDaemon")
+    val counter = AtomicInteger(0)
+    val threadFactory = ThreadFactory { task ->
+        Thread(threadGroup, task, "SakuraLoginSolverDaemon #${counter.getAndIncrement()}").also { thread ->
+            thread.isDaemon = true
+        }
+    }
+    return NioEventLoopGroup(0, threadFactory)
 }

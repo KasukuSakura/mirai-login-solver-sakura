@@ -9,10 +9,10 @@
 
 package com.kasukusakura.mlss.console
 
+import com.kasukusakura.mlss.DaemonNettyNioEventLoopGroup
 import com.kasukusakura.mlss.ProjMetadata
 import com.kasukusakura.mlss.resolver.SakuraLoginSolver
 import com.kasukusakura.mlss.slovbroadcast.SakuraTransmitDaemon
-import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import kotlinx.coroutines.job
@@ -34,7 +34,7 @@ object ConsolePluginMain : KotlinPlugin(
         logger.debug { "Commit  : " + ProjMetadata["proj.commitid"] }
 
         val server = SakuraTransmitDaemon(
-            NioEventLoopGroup(),
+            DaemonNettyNioEventLoopGroup(),
             NioServerSocketChannel::class.java,
             NioSocketChannel::class.java,
             SecureRandom().asKotlinRandom(),
