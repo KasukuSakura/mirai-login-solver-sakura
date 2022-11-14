@@ -110,6 +110,7 @@ class CaptchaActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         binding.webview.destroy()
+        ProxyController.getInstance().clearProxyOverride(dummyExecutor, dummyListener)
         super.onDestroy()
     }
 }
