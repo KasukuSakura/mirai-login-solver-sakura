@@ -11,17 +11,24 @@ package com.kasukusakura.mlss.console
 
 import com.kasukusakura.mlss.DaemonNettyNioEventLoopGroup
 import com.kasukusakura.mlss.ProjMetadata
+import com.kasukusakura.mlss.resolver.CommonTerminalLoginSolver
+import com.kasukusakura.mlss.resolver.JLineLoginSolver
 import com.kasukusakura.mlss.resolver.SakuraLoginSolver
 import com.kasukusakura.mlss.slovbroadcast.SakuraTransmitDaemon
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import kotlinx.coroutines.job
+import net.mamoe.mirai.console.MiraiConsole
 import net.mamoe.mirai.console.extension.PluginComponentStorage
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
+import net.mamoe.mirai.console.util.requestInput
 import net.mamoe.mirai.utils.debug
+import org.jline.reader.LineReader
+import java.awt.GraphicsEnvironment
 import java.security.SecureRandom
 import kotlin.random.asKotlinRandom
+import java.awt.Toolkit as AwtToolkit
 
 object ConsolePluginMain : KotlinPlugin(
     JvmPluginDescription(id = "com.kasukusakura.mlss", version = ProjMetadata["proj.projver"]) {
@@ -46,7 +53,39 @@ object ConsolePluginMain : KotlinPlugin(
             server.shutdown()
             server.eventLoopGroup.shutdownGracefully()
         }
-        val solver = SakuraLoginSolver(server)
+
+        val noDesktop = if (System.getProperty("mirai.no-desktop") != null) {
+            true
+        } else kotlin.runCatching {
+            if (GraphicsEnvironment.isHeadless()) return@runCatching true
+            AwtToolkit.getDefaultToolkit()
+            return@runCatching false
+        }.onFailure { logger.warning(it) }.getOrElse { true }
+
+        val solver = if (noDesktop) run {
+            try {
+                val lineReader = Class.forName("net.mamoe.mirai.console.terminal.MiraiConsoleImplementationTerminalKt")
+                    .getMethod("getLineReader")
+                    .invoke(null)
+                return@run JLineLoginSolver(
+                    daemon = server,
+                    lineReader = lineReader as LineReader,
+                )
+            } catch (_: Throwable) {
+            }
+
+            object : CommonTerminalLoginSolver(server) {
+                override fun printMsg(msg: String) {
+                    logger.info(msg)
+                }
+
+                override suspend fun requstInput(hint: String): String = MiraiConsole.requestInput(hint)
+
+                override val isCtrlCSupported: Boolean get() = false
+            }
+        } else {
+            SakuraLoginSolver(server)
+        }
 
         contributeBotConfigurationAlterer { botid, botconf ->
             botconf.loginSolver = solver

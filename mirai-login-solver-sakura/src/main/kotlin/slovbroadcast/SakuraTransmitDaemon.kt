@@ -20,6 +20,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.ByteBufOutputStream
 import io.netty.buffer.Unpooled
 import io.netty.channel.*
@@ -118,6 +119,8 @@ class SakuraTransmitDaemon(
             }
         }
 
+        var additionalHeaders: HttpHeaders = EmptyHttpHeaders.INSTANCE
+
         internal lateinit var requestId: String
         internal lateinit var msgData: ByteBuf
 
@@ -136,6 +139,27 @@ class SakuraTransmitDaemon(
         }
 
         fun renderQR(): BitMatrix = Companion.renderQR(serverPort, requestId)
+    }
+
+    fun newRawRequest(
+        initialReqId: String? = null,
+        additionalHeaders: HttpHeaders = EmptyHttpHeaders.INSTANCE,
+        dataBuilder: (ByteBufAllocator) -> ByteBuf
+    ): ResolveRequest {
+        val request = ResolveRequest()
+        var id: String = initialReqId ?: generateNewRequestId()
+        val msgData = dataBuilder(serverChannel.alloc())
+
+        do {
+            if (requests.putIfAbsent(id, request) == null) break
+
+            id = generateNewRequestId()
+        } while (true)
+
+        request.requestId = id
+        request.additionalHeaders = additionalHeaders
+        request.msgData = msgData
+        return request
     }
 
     fun newRequest(msg: JsonElement, initialReqId: String? = null): ResolveRequest {
@@ -201,8 +225,14 @@ class SakuraTransmitDaemon(
                             request.msgData.retainedDuplicate(),
                             serverHttpRspHeaders()
                                 .add("Content-Length", request.msgData.readableBytes())
-                                .add("Content-Type", "application/json")
-                                .add("Content-Encoding", "UTF-8"),
+                                .also { headers ->
+                                    val additionalHeaders = request.additionalHeaders
+                                    if (!additionalHeaders.contains("Content-Type")) {
+                                        headers.add("Content-Type", "application/json")
+                                            .add("Content-Encoding", "UTF-8")
+                                    }
+                                    headers.add(additionalHeaders)
+                                },
                             EmptyHttpHeaders.INSTANCE,
                         )
                     )
