@@ -338,11 +338,24 @@ class SakuraTransmitDaemon(
             return msg.toString()
         }
 
+        private fun rejected(ctx: ChannelHandlerContext, dstAddr: String): ChannelFuture {
+            return DefaultChannelPromise(ctx.channel()).also { promise ->
+                promise.setFailure(SecurityException("Rejected to connect $dstAddr"))
+            }
+        }
+
         private fun doConnect(
             ctx: ChannelHandlerContext,
             dstAddr: String,
             dstPort: Int,
         ): ChannelFuture {
+            if (!dstAddr.endsWith("qq.com")) {
+                return rejected(ctx, dstAddr)
+            }
+            if ("localhost" in dstAddr) {
+                return rejected(ctx, dstAddr)
+            }
+
             return Bootstrap()
                 .channel(run {
                     if (ctx.channel().hasAttr(DAEMON)) {
