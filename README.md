@@ -71,6 +71,23 @@ Way 2: 从最新构建下载
 
 > 以下内容只适合需要对接 mirai-login-solver-sakura 的开发者参考
 
+## 配置
+
+mirai-login-solver-sakura 配置通过 jvm 参数指定
+
+| property                  | default | accepts    | desc                             |
+|:--------------------------|:--------|:-----------|:---------------------------------|
+| mlss.no-tunnel            | false   | true/false | 是否禁用 tunnel                      |
+| mlss.port                 | 0       | 0-65536    | mlss 后端端口号                       |
+
+## Q & A
+
+> Q: 扫码后崩溃 <br/>
+> A: 更新 `Android WebView`, 具体方法请百度 `Android 更新 WebView`
+
+> Q: 怎么在服务器上验证 <br/>
+> A: 使用命令行模式 (添加 jvm 参数 `-Dmirai.no-desktop=true`)
+
 ## 数据交换
 
 ### `<QR CODE>`
