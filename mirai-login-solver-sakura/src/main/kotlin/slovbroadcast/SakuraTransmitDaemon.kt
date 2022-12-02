@@ -53,14 +53,14 @@ class SakuraTransmitDaemon(
     private val logger: MiraiLogger,
 ) {
     @JvmField
-    var isSocksTunnelEnabled: Boolean = true
+    var isSocksTunnelEnabled: Boolean = !DefaultSettings.noTunnel
 
     private val requests = ConcurrentHashMap<String, ResolveRequest>()
     private lateinit var serverChannel: ServerChannel
 
     val serverPort: Int get() = (serverChannel.localAddress() as InetSocketAddress).port
 
-    fun bootServer(inetPort: Int = 0) {
+    fun bootServer(inetPort: Int = DefaultSettings.serverPort) {
         val rspx = ServerBootstrap()
             .channel(serverChannelType)
             .group(eventLoopGroup, eventLoopGroup)
