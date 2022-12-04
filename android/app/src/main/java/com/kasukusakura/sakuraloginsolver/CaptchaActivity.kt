@@ -67,23 +67,30 @@ class CaptchaActivity : AppCompatActivity() {
         }
 
         val tunnel = intent.getStringExtra("tunnel").orEmpty()
+        try {
+            ProxyController.getInstance().clearProxyOverride(dummyExecutor, dummyListener)
 
-        if (tunnel.isNotBlank()) {
-            val conf = ProxyConfig.Builder()
-                .addProxyRule(tunnel)
-                .addDirect()
-                .build()
+            if (tunnel.isNotBlank()) {
 
-            ProxyController.getInstance().setProxyOverride(conf, dummyExecutor, dummyListener)
-        } else {
-            val conf = ProxyConfig.Builder()
-                .addDirect()
-                .build()
+                val conf = ProxyConfig.Builder()
+                    .addProxyRule(tunnel)
+                    .addDirect()
+                    .build()
 
-            ProxyController.getInstance().setProxyOverride(conf, dummyExecutor, dummyListener)
+                ProxyController.getInstance().setProxyOverride(conf, dummyExecutor, dummyListener)
+            } else {
+                ProxyController.getInstance().clearProxyOverride(dummyExecutor, dummyListener)
+            }
+
+            intent.getStringExtra("url")?.let { webview.loadUrl(it) }
+        } catch (e: Throwable) {
+            webview.loadData(
+                "Failed to load webview. Try updating Android WebView:\n\n" + e.stackTraceToString(),
+                "text/plain",
+                "utf-8"
+            )
         }
 
-        intent.getStringExtra("url")?.let { webview.loadUrl(it) }
     }
 
 
@@ -100,8 +107,10 @@ class CaptchaActivity : AppCompatActivity() {
         val intent = Intent()
             .putExtras(this.intent)
             .putExtra("ticket", ticket)
-
-        ProxyController.getInstance().clearProxyOverride(dummyExecutor, dummyListener)
+        try {
+            ProxyController.getInstance().clearProxyOverride(dummyExecutor, dummyListener)
+        } catch (_: Throwable) {
+        }
         binding.webview.destroy()
 
         setResult(RESULT_OK, intent)
@@ -110,7 +119,10 @@ class CaptchaActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         binding.webview.destroy()
-        ProxyController.getInstance().clearProxyOverride(dummyExecutor, dummyListener)
+        try {
+            ProxyController.getInstance().clearProxyOverride(dummyExecutor, dummyListener)
+        } catch (_: Throwable) {
+        }
         super.onDestroy()
     }
 }
