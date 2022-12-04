@@ -79,6 +79,7 @@ mirai-login-solver-sakura 配置通过 jvm 参数指定
 |:--------------------------|:--------|:-----------|:---------------------------------|
 | mlss.no-tunnel            | false   | true/false | 是否禁用 tunnel                      |
 | mlss.port                 | 0       | 0-65536    | mlss 后端端口号                       |
+| mlss.tunnel.limited       | true    | true/false | 是否启动安全策略限制 tunnel 链接             |
 
 ## Q & A
 
