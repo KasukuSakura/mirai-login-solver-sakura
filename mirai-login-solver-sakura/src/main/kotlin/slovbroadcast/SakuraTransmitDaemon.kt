@@ -282,6 +282,8 @@ class SakuraTransmitDaemon(
                                             }"
                                         }
 
+                                        ctx.pipeline().remove(this)
+
                                         ctx.channel().writeAndFlush(
                                             DefaultFullHttpResponse(
                                                 httpReq.protocolVersion(), HttpResponseStatus.OK,
