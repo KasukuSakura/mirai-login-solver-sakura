@@ -140,6 +140,7 @@ class SakuraLoginSolver(
                             )
                         )
                         appendFillX(jl)
+                        appendFillX(JLabel("http://<ip>:${daemon.serverPort}/request/request/${req24.requestId}"))
                         appendFillX(
                             JLabel("Version " + ProjMetadata["proj.projver"] + " " + ProjMetadata["proj.commitid"]).also { verinf ->
                                 verinf.foreground = Color.GRAY
