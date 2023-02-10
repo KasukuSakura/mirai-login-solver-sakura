@@ -67,9 +67,6 @@ Way 2: 从最新构建下载
 
 </details>
 
----------
-
-> 以下内容只适合需要对接 mirai-login-solver-sakura 的开发者参考
 
 ## 配置
 
@@ -89,6 +86,9 @@ mirai-login-solver-sakura 配置通过 jvm 参数指定
 > Q: 怎么在服务器上验证 <br/>
 > A: 使用命令行模式 (添加 jvm 参数 `-Dmirai.no-desktop=true`)
 
+---------
+
+> 以下内容只适合需要对接 mirai-login-solver-sakura 的开发者参考
 ## 数据交换
 
 ### `<QR CODE>`
