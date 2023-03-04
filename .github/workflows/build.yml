@@ -18,6 +18,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           cache-disabled: true
+          gradle-version: 7.6
 
       - name: Build toplevel project
         run: gradle build buildPlugin updateAndroidProperties --info
