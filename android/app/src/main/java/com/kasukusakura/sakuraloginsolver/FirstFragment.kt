@@ -282,7 +282,12 @@ class FirstFragment : Fragment() {
     }
 
 
-    private fun processAsRawRequest(context: ReqContext, url: String) {
+    private fun processAsRawRequest(context: ReqContext, url_: String) {
+        val url = when {
+            url_.startsWith("http") -> url_
+            else -> "http://$url_"
+        }
+
         crtContext = context
         context.complete = fun(rsp) {
             if (rsp.hasExtra("srsp")) {
