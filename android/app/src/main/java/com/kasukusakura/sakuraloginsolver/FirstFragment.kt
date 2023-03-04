@@ -5,10 +5,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.util.JsonReader
 import android.util.Log
-import android.view.KeyEvent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,8 +16,6 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.navigation.fragment.findNavController
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -27,8 +24,9 @@ import com.king.zxing.CameraScan
 import com.king.zxing.CaptureActivity
 import okhttp3.*
 import java.io.IOException
+import java.net.InetAddress
 import java.net.URI
-import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -166,14 +164,18 @@ class FirstFragment : Fragment() {
             val serverBase = "http://$serverIp:$sport"
 
             val urlx = "$serverBase/request/request/$reqId"
-            Log.i(LOG_NAME, "Trying $urlx")
+            context.processAlert.setMessage("Trying $urlx".also { Log.i(LOG_NAME, it) })
 
             client.newCall(
                 Request.Builder()
                     .url(urlx)
                     .get()
                     .build()
-            ).enqueue(object : Callback {
+            ).also { call ->
+                if (InetAddress.getByName(serverIp).isSiteLocalAddress) {
+                    call.timeout().timeout(3, TimeUnit.SECONDS)
+                }
+            }.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     Log.e(LOG_NAME, "Net error", e)
                     processNext(iter)
@@ -220,6 +222,11 @@ class FirstFragment : Fragment() {
                         .putExtra("url", msgdata["url"].asString)
                         .putExtra("tunnel", tunnel)
                 )
+            }
+            "browser" -> {
+                context.complete = {}
+                context.processAlert.dismiss()
+                openQQ(msgdata["url"].asString)
             }
             else -> {
                 requireActivity().runOnUiThread {
@@ -354,5 +361,20 @@ class FirstFragment : Fragment() {
         } else {
             processAsRawRequest(context, data)
         }
+    }
+
+    private fun openQQ(url: String) {
+        val intent = Intent()
+        intent.action = "android.intent.action.VIEW"
+        intent.putExtra("url", url)
+        intent.data = Uri.parse("mqqverifycode://puzzle_verify_code/PUZZLEVERIFYCODE")
+        intent.putExtra("business", 2097152L)
+        intent.putExtra("hide_operation_bar", true)
+        intent.putExtra("hide_more_button", true)
+        intent.putExtra("isSubaccount", true)
+        intent.putExtra("isShowAd", false)
+        kotlin.runCatching {
+            startActivity(intent)
+        }.onFailure { Log.w("SakuraLoginSolver", it) }
     }
 }

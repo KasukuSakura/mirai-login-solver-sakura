@@ -141,3 +141,17 @@ RSP:
 ```text
 t105.............
 ```
+
+#### `browser`
+
+打开链接
+```json5
+{
+  "data": {
+    "type": "browser",
+    "url": "https://www.baidu.com"
+  }
+}
+```
+
+RSP: `Not available`

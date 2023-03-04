@@ -79,7 +79,7 @@ object ConsolePluginMain : KotlinPlugin(
                     logger.info(msg)
                 }
 
-                override suspend fun requstInput(hint: String): String = MiraiConsole.requestInput(hint)
+                override suspend fun requestInput(hint: String): String = MiraiConsole.requestInput(hint)
 
                 override val isCtrlCSupported: Boolean get() = false
             }

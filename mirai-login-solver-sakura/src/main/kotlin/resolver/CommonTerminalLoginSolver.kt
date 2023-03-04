@@ -11,14 +11,12 @@ package com.kasukusakura.mlss.resolver
 
 import com.google.gson.JsonObject
 import com.kasukusakura.mlss.slovbroadcast.SakuraTransmitDaemon
-import io.netty.buffer.ByteBufOutputStream
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.DefaultHttpHeaders
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.utils.DeviceVerificationRequests
 import net.mamoe.mirai.utils.DeviceVerificationResult
 import net.mamoe.mirai.utils.LoginSolver
-import javax.imageio.ImageIO
 
 abstract class CommonTerminalLoginSolver(
     private val daemon: SakuraTransmitDaemon,
@@ -26,7 +24,7 @@ abstract class CommonTerminalLoginSolver(
 
     protected abstract fun printMsg(msg: String)
     protected open val isCtrlCSupported: Boolean get() = false
-    protected abstract suspend fun requstInput(hint: String): String?
+    protected abstract suspend fun requestInput(hint: String): String?
 
     override val isSliderCaptchaSupported: Boolean get() = true
 
@@ -40,7 +38,7 @@ abstract class CommonTerminalLoginSolver(
         printMsg("请使用 任意浏览器 打开 http://<ip>:${daemon.serverPort}/request/request/${req.requestId} 来查看图片")
 
         try {
-            val rsp = requstInput("PicCaptcha > ") ?: throw UnsafeDeviceLoginVerifyCancelledException(true)
+            val rsp = requestInput("PicCaptcha > ") ?: throw UnsafeDeviceLoginVerifyCancelledException(true)
 
             return rsp.takeIf { it.isNotBlank() }
         } finally {
@@ -86,33 +84,24 @@ abstract class CommonTerminalLoginSolver(
                 printMsg("请在 「手机QQ」!!! 打开此链接")
                 printMsg(fallback.url)
 
-                val req = kotlin.runCatching {
-                    ImageIO.setUseCache(false)
-                    val img = fallback.url.renderQRCode()
-                    daemon.newRawRequest(
-                        additionalHeaders = DefaultHttpHeaders()
-                            .add("Content-Type", "image/png")
-                    ) { allocator ->
-                        val buf = allocator.buffer()
-                        ByteBufOutputStream(buf).use { ImageIO.write(img, "png", it) }
-                        return@newRawRequest buf
-                    }
-                }.getOrNull()
-                if (req != null) {
-                    printMsg("")
-                    printMsg("或使用 任意浏览器 打开 http://<ip>:${daemon.serverPort}/request/request/${req.requestId}")
-                    printMsg("并使用 「手机QQ」扫描此二维码")
-                }
+                val req = daemon.newRequest(JsonObject().also { jo ->
+                    jo.addProperty("type", "browser")
+                    jo.addProperty("url", fallback.url)
+                })
+
+                printMsg("")
+                printMsg("或使用 「SakuraLoginSolver」 打开 http://<ip>:${daemon.serverPort}/request/request/${req.requestId}")
+
 
                 try {
-                    requstInput(
+                    requestInput(
                         if (isCtrlCSupported) "按任意键继续, 按 「Ctrl+C」 取消"
                         else "按任意键继续"
                     ) ?: return@process null
 
                     return@process fallback.solved()
                 } finally {
-                    req?.fireCompleted()
+                    req.fireCompleted()
                 }
             }
         }
@@ -126,7 +115,7 @@ abstract class CommonTerminalLoginSolver(
                 }
 
                 while (true) {
-                    val value = requstInput("> ") ?: return@process null
+                    val value = requestInput("> ") ?: return@process null
                     if (value.isBlank()) {
                         sms.requestSms()
                         printMsg("短信已发出. 请自行留意短信重发时间")
@@ -157,7 +146,7 @@ abstract class CommonTerminalLoginSolver(
                     printMsg("输入 「cancel」 取消")
                 }
 
-                val optionSelected = requstInput("> ")
+                val optionSelected = requestInput("> ")
                 if (optionSelected.isNullOrBlank() || optionSelected == "cancel") {
                     throw UnsafeDeviceLoginVerifyCancelledException(true, "Cancelled")
                 }
