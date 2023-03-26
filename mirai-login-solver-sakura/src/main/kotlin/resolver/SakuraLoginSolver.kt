@@ -17,6 +17,7 @@ import com.kasukusakura.mlss.slovbroadcast.SakuraTransmitDaemon
 import com.kasukusakura.mlss.useByteBuf
 import kotlinx.coroutines.*
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.auth.QRCodeLoginListener
 import net.mamoe.mirai.network.CustomLoginFailedException
 import net.mamoe.mirai.utils.*
 import java.awt.Color
@@ -37,17 +38,18 @@ class SakuraLoginSolver(
     private val daemon: SakuraTransmitDaemon,
 ) : LoginSolver() {
     override val isSliderCaptchaSupported: Boolean get() = true
+    private fun loadImage(data: ByteArray): BufferedImage {
+        val usingCache = ImageIO.getUseCache()
+        try {
+            ImageIO.setUseCache(false)
+            return ImageIO.read(ByteArrayInputStream(data))
+        } finally {
+            if (usingCache) ImageIO.setUseCache(true)
+        }
+    }
 
     override suspend fun onSolvePicCaptcha(bot: Bot, data: ByteArray): String? {
-        val img = runInterruptible(Dispatchers.IO) {
-            val usingCache = ImageIO.getUseCache()
-            try {
-                ImageIO.setUseCache(false)
-                ImageIO.read(ByteArrayInputStream(data))
-            } finally {
-                if (usingCache) ImageIO.setUseCache(true)
-            }
-        }
+        val img = runInterruptible(Dispatchers.IO) { loadImage(data) }
         return onSolvePicCaptcha(bot.id, img)
     }
 
@@ -69,6 +71,10 @@ class SakuraLoginSolver(
         requests: DeviceVerificationRequests
     ): DeviceVerificationResult {
         return onDeviceVerification(bot.id, requests)
+    }
+
+    override fun createQRCodeLoginListener(bot: Bot): QRCodeLoginListener {
+        return createQRCodeLoginListener(bot.id, bot)
     }
 
     internal suspend fun onSolvePicCaptcha(botid: Long, img: BufferedImage): String? {
@@ -307,6 +313,62 @@ class SakuraLoginSolver(
             optionPane.options = arrayOf(
                 JButton("已完成").withValue { WindowResult.ConfirmedAnything(req.solved()) }
             )
+        }
+    }
+
+    internal fun createQRCodeLoginListener(botid: Long, scope: CoroutineScope): QRCodeLoginListener {
+        val labelx = JLabel("Waiting")
+        val frame = JFrameWithIco()
+        val rspCD = CompletableDeferred<WindowResult>()
+        var cancelled = false
+        scope.launch {
+            val rsp = openWindowCommon(
+                frame,
+                isTopLevel = true,
+                title = "QRCode Login($botid)",
+                overrideResponse = rspCD
+            ) {
+                optionPane.options = arrayOf(BTN_CANCEL.withValue(WindowResult.Cancelled))
+                appendFillX(labelx)
+            }
+
+            if (rsp.cancelled) cancelled = true
+        }
+
+        return object : QRCodeLoginListener {
+            override val qrCodeMargin: Int get() = 2
+            override val qrCodeSize: Int get() = 10
+
+
+            override fun onFetchQRCode(bot: Bot, data: ByteArray) {
+                val notEmpty = labelx.text.isNotEmpty()
+                if (notEmpty) {
+                    labelx.text = ""
+                }
+                labelx.icon = ImageIcon(loadImage(data))
+                if (notEmpty) {
+                    Thread.sleep(100)
+                    frame.pack()
+                    frame.setLocationRelativeTo(null)
+                }
+            }
+
+            override fun onStateChanged(bot: Bot, state: QRCodeLoginListener.State) {
+                if (state == QRCodeLoginListener.State.CONFIRMED) {
+                    rspCD.complete(WindowResult.SelectedOK)
+                }
+            }
+
+            public fun onCompleted() {
+                rspCD.complete(WindowResult.SelectedOK)
+            }
+
+            override fun onIntervalLoop() {
+                if (cancelled) {
+                    throw UnsafeDeviceLoginVerifyCancelledException(true, "Cancelled")
+                }
+            }
+
         }
     }
 

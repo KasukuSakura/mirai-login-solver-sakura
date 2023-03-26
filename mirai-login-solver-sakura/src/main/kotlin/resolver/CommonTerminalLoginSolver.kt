@@ -14,9 +14,11 @@ import com.kasukusakura.mlss.slovbroadcast.SakuraTransmitDaemon
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http.DefaultHttpHeaders
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.auth.QRCodeLoginListener
 import net.mamoe.mirai.utils.DeviceVerificationRequests
 import net.mamoe.mirai.utils.DeviceVerificationResult
 import net.mamoe.mirai.utils.LoginSolver
+import net.mamoe.mirai.utils.StandardCharImageLoginSolver
 
 abstract class CommonTerminalLoginSolver(
     private val daemon: SakuraTransmitDaemon,
@@ -162,5 +164,13 @@ abstract class CommonTerminalLoginSolver(
         } finally {
             setLineReaderCompleter(originTabCompleter)
         }
+    }
+
+    override fun createQRCodeLoginListener(bot: Bot): QRCodeLoginListener {
+        return schrLoginSolver.createQRCodeLoginListener(bot)
+    }
+
+    private val schrLoginSolver by lazy {
+        StandardCharImageLoginSolver({ requestInput("> ") ?: error("no input available") })
     }
 }

@@ -1,5 +1,5 @@
 plugins {
-    id 'net.mamoe.mirai-console' version '2.13.0-RC'
+    id 'net.mamoe.mirai-console' version '2.15.0-M1'
     id 'org.jetbrains.kotlin.jvm'
 }
 
