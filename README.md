@@ -79,6 +79,10 @@ mirai-login-solver-sakura 配置通过 jvm 参数指定
 | mlss.port                 | 0       | 0-65536    | mlss 后端端口号                       |
 | mlss.tunnel.limited       | true    | true/false | 是否启动安全策略限制 tunnel 链接             |
 
+为了方便在云服务器上的使用（避免重复设置端口防火墙）  
+当 `mlss.port` 取 `0` 时，将先尝试绑定端口 `22333`,   
+如果端口 `22333` 无法使用，则使用随机端口
+
 ## Q & A
 
 > Q: 扫码后崩溃 <br/>
