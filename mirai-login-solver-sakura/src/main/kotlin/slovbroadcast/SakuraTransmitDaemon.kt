@@ -64,6 +64,19 @@ class SakuraTransmitDaemon(
     val serverPort: Int get() = (serverChannel.localAddress() as InetSocketAddress).port
 
     fun bootServer(inetPort: Int = DefaultSettings.serverPort) {
+        val bindPort = inetPort.takeIf { it != 0 } ?: kotlin.run {
+            val default = 22333
+            try {
+                java.net.ServerSocket().use { socket ->
+                    socket.reuseAddress = true
+                    socket.bind(InetSocketAddress("127.0.0.1", default))
+                }
+                default
+            } catch (cause: Throwable) {
+                0
+            }
+        }
+
         val rspx = ServerBootstrap()
             .channel(serverChannelType)
             .group(eventLoopGroup, eventLoopGroup)
@@ -96,7 +109,7 @@ class SakuraTransmitDaemon(
                     }
                 }
             })
-            .bind(inetPort)
+            .bind(bindPort)
             .sync()
 
         if (rspx.isSuccess) {
