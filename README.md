@@ -7,7 +7,10 @@
 > 本项目前身: [TxCaptchaHelper](https://github.com/mzdluo123/TxCaptchaHelper)
 
 本项目提供的不是扫码登录，只是利用扫码简化交互流程  
-在服务器上验证请阅读 [#配置](#配置)
+在服务器上验证请阅读 [#配置](#配置)  
+
+本项目只负责验证过程中数据的传递  
+`net.mamoe.mirai.network` 相关异常请汇报至 [mamoe/mirai](https://github.com/mamoe/mirai/issues)
 
 ## 系统要求
 
@@ -93,7 +96,7 @@ mirai-login-solver-sakura 配置通过 jvm 参数指定
 > A: 使用命令行模式 (添加 jvm 参数 `-Dmirai.no-desktop=true`)
 
 > Q: No any server availalbe <br/>
-> A: 云服务器检查防火墙
+> A: 云服务器检查防火墙 <br/>
 > A: WIFI局域网则检查路由器的AP隔离，可以尝试在本机上 ping 一下自身的 ip，刷新路由表
 
 ---------
