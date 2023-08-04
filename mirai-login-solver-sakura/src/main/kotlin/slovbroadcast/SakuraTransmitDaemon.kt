@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 KasukuSakura Technologies and contributors.
+ * Copyright 2021-2023 KasukuSakura Technologies and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -69,10 +69,16 @@ class SakuraTransmitDaemon(
             try {
                 java.net.ServerSocket().use { socket ->
                     socket.reuseAddress = true
-                    socket.bind(InetSocketAddress("127.0.0.1", default))
+                    // need test bind 0.0.0.0
+                    socket.bind(InetSocketAddress(default))
                 }
                 default
             } catch (cause: Throwable) {
+                if (cause is java.net.BindException) {
+                    logger.warning("default port 22333 already in use.", cause)
+                } else {
+                    logger.debug("default port 22333 bind fail.", cause)
+                }
                 0
             }
         }
